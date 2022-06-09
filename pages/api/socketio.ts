@@ -1,6 +1,11 @@
 import { Server } from "socket.io";
 const ioHandler = (_req: any, res: any) => {
   // console.log(res.socket.server.io);
+  interface IHistory {
+    name:string;
+    message:string;
+  }
+  const history:IHistory[] = []
   if (!res.socket.server.io) {
     console.log("*First use, starting socket.io");
 
@@ -9,7 +14,10 @@ const ioHandler = (_req: any, res: any) => {
     io.on("connection", (socket) => {
       socket.broadcast.emit("a user connected");
       socket.on("message", (body) => {
-        console.log(`[${body.name}] - got message : ${body.message}`);
+        const {name,message} = body
+        history.push({name,body })
+        socket.broadcast.emit(history)
+        console.log(`[${name}] - got message : ${message}`);
       });
     });
 

@@ -3,10 +3,14 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
 // const socket = io.connect("http://localhost:4000");
-
+interface IHistory {
+  name: string;
+  message: string;
+}
 const Home: NextPage = () => {
   const [message, setMessage] = useState("");
   const [name, setName] = useState("");
+  const [history, setHistory] = useState<IHistory[]>([]);
   const socket = io();
   useEffect(() => {
     fetch("/api/socketio").finally(() => {
@@ -15,8 +19,13 @@ const Home: NextPage = () => {
         socket.emit("hello");
       });
 
-      socket.on("hello", (data) => {
-        console.log("hello", data);
+      socket.on("message", (data) => {
+        const { name, message } = data;
+        const tempHistory = [...history, { name, message }];
+        setHistory(tempHistory);
+      });
+      socket.on("history", (history) => {
+        setHistory(history);
       });
 
       socket.on("a user connected", () => {
@@ -27,7 +36,7 @@ const Home: NextPage = () => {
         console.log("disconnect");
       });
     });
-  }, [socket]);
+  }, [socket, history]);
 
   return (
     <div>
