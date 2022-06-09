@@ -1,35 +1,23 @@
 import { Server } from "socket.io";
+let isConnected = false
 const ioHandler = (_req: any, res: any) => {
-  // console.log(res.socket.server.io);
-  interface IHistory {
-    name:string;
-    message:string;
-  }
-  const history:IHistory[] = []
-  if (!res.socket.server.io) {
-    console.log("*First use, starting socket.io");
-
+  if(!isConnected){
+    isConnected = true
     const io = new Server(res.socket.server);
-
+    console.log("*First use, starting socket.io");
     io.on("connection", (socket) => {
+      console.log('소켓시작')
       socket.broadcast.emit("a user connected");
       socket.on("message", (body) => {
         const {name,message} = body
-        history.push({name,body })
-        socket.broadcast.emit(history)
         console.log(`[${name}] - got message : ${message}`);
+        console.log(`현재인원 : ${socket.conn.server.clientsCount}`);
+        console.log('---');
+        
+        io.emit("message", body)
       });
     });
-
-    res.socket.server.io = io;
   }
-  res.end();
+  res.status(200).json({message:'socket connected'})
 };
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export default ioHandler;

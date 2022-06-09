@@ -1,4 +1,5 @@
-import type { NextPage } from 'next'
+import { connect } from "http2";
+import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
@@ -7,39 +8,41 @@ interface IHistory {
   name: string;
   message: string;
 }
+const socket = io();
 const Home: NextPage = () => {
   const [message, setMessage] = useState("");
   const [name, setName] = useState("");
   const [history, setHistory] = useState<IHistory[]>([]);
-  const socket = io();
+
   useEffect(() => {
-    fetch("/api/socketio").finally(() => {
-      socket.on("connect", () => {
-        console.log("connect");
-        socket.emit("hello");
-      });
+    console.log("useeffect");
+    const connectToSocket = async () => {
+      await fetch("/api/socketio");
+    };
+    connectToSocket();
+  }, []);
 
-      socket.on("message", (data) => {
-        const { name, message } = data;
-        const tempHistory = [...history, { name, message }];
-        setHistory(tempHistory);
-      });
-      socket.on("history", (history) => {
-        setHistory(history);
-      });
-
-      socket.on("a user connected", () => {
-        console.log("a user connected");
-      });
-
-      socket.on("disconnect", () => {
-        console.log("disconnect");
-      });
-    });
-  }, [socket, history]);
+  socket.on("message", (data) => {
+    const tempHistory = [...history, data];
+    setHistory(tempHistory);
+  });
 
   return (
     <div>
+      {history.map((data, idx) => {
+        const { name, message } = data;
+        const key = name + idx;
+        return (
+          <div key={key}>
+            <span
+              style={{ color: name === "맥북" ? "orange" : "blue" }}
+            >{`${name} : `}</span>
+            <span style={{ color: name === "맥북" ? "orange" : "blue" }}>
+              {message}
+            </span>
+          </div>
+        );
+      })}
       <div>
         {`이름 : `}
         <input
@@ -68,32 +71,8 @@ const Home: NextPage = () => {
           전송
         </button>
       </div>
-      <button
-        onClick={() => {
-          fetch("/api/socketio").finally(() => {
-            socket.on("connect", () => {
-              console.log("connect");
-              socket.emit("hello");
-            });
-
-            socket.on("hello", (data) => {
-              console.log("hello", data);
-            });
-
-            socket.on("a user connected", () => {
-              console.log("a user connected");
-            });
-
-            socket.on("disconnect", () => {
-              console.log("disconnect");
-            });
-          });
-        }}
-      >
-        연결
-      </button>
     </div>
   );
 };
 
-export default Home
+export default Home;
