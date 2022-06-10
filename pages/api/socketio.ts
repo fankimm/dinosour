@@ -8,8 +8,10 @@ const ioHandler = (req: any, res: any) => {
     const io = new Server(res.socket.server);
     console.log("*First use, starting socket.io");
     io.on("connection", (socket) => {
+      console.log(Object.keys(socket.rooms));
+      console.log(socket.rooms);
+
       console.log(`socket-id : ${socket.id}`);
-      console.log(`client-id : ${socket.client.id}`);
       let tempColor = "";
       for (let i = 0; i < 3; i++) {
         if (i === 2) {
@@ -18,14 +20,17 @@ const ioHandler = (req: any, res: any) => {
           tempColor += Math.floor(Math.random() * 256).toString() + ",";
         }
       }
-      const tempId = socket.client.id;
-      const personalInfo = { id: tempId, color: tempColor };
+      const {
+        sockets: {
+          adapter: { sids, rooms },
+        },
+      } = io;
+      const personalInfo = { id: sids, color: tempColor };
       io.emit("profile", personalInfo);
       socket.on("disconnect", () => {
         console.log("user has left");
       });
       console.log("소켓시작");
-      // console.log(`현재인원 : ${socket.conn.server.clientsCount}`);
       console.log("---");
       socket.on("message", (body) => {
         const { name, message } = body;
