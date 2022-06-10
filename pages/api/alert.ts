@@ -1,7 +1,6 @@
 import { NextApiRequest } from 'next';
 
 export default (req: NextApiRequest, res: any) => {
-  console.log(req.body);
   const {
     name, message, type,
   } = JSON.parse(req.body);
@@ -11,7 +10,6 @@ export default (req: NextApiRequest, res: any) => {
     message,
     type,
   };
-  console.log(body);
 
   // dispatch to channel "message"
   res?.socket?.server?.io?.emit('message', body);

@@ -11,6 +11,7 @@ interface IHistory {
   color: string;
   userName: string;
   id: string;
+  type?:string
 }
 
 // component
@@ -27,8 +28,6 @@ function Index() {
   const scrollRef = createRef<HTMLDivElement>();
   const sendMessage = () => {
     const fieldsValue = form.getFieldsValue();
-    console.log(fieldsValue);
-
     const { message } = fieldsValue;
     if (message && name) {
       const data = {
