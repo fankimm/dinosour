@@ -25,7 +25,7 @@ const ioHandler = (req: any, res: any) => {
           adapter: { sids, rooms },
         },
       } = io;
-      const personalInfo = { id: sids, color: tempColor };
+      const personalInfo = { id: socket.id, color: tempColor };
       io.emit("profile", personalInfo);
       socket.on("disconnect", () => {
         console.log("user has left");
