@@ -14,17 +14,14 @@ interface IHistory {
   type?:string
 }
 
-// component
 function Index() {
-  // connected flag
   const [id, setId] = useState<string>();
   const [name, setName] = useState<string>();
-  const [connected, setConnected] = useState(false);
-  const [color, setColor] = useState('');
+  const [color, setColor] = useState<string>('');
+  const [connected, setConnected] = useState<boolean>(false);
+  const [history, setHistory] = useState<IHistory[]>([]);
   const [form] = Form.useForm();
 
-  // init chat and message
-  const [history, setHistory] = useState<IHistory[]>([]);
   const scrollRef = createRef<HTMLDivElement>();
   const sendMessage = () => {
     const fieldsValue = form.getFieldsValue();
@@ -66,18 +63,15 @@ function Index() {
         method: 'POST',
         body: JSON.stringify(body),
       });
-      console.log('SOCKET CONNECTED!', socket.id);
+      console.log(`SOCKET CONNECTED!${connected}`, socket.id);
       setId(socket.id);
       setConnected(true);
     });
-
-    // update chat on new message dispatched
     socket.on('message', (message: IHistory) => {
       history.push(message);
       setHistory([...history]);
     });
 
-    // socket disconnet onUnmount if exists
     return () => {
       if (socket) {
         const body = {
@@ -119,9 +113,6 @@ function Index() {
                   </div>
                 );
               }
-              // const {
-              //   name, message, time, id,
-              // } = data;
               const splitTime = data.time.split(' ');
               const key = data + idx.toString();
               return (
